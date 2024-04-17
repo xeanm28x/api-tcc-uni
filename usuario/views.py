@@ -1,13 +1,17 @@
 from django.shortcuts import render, redirect
 
-def login(request):
+def store(request):
 
     return render(request, "")
 
-def home(request):
+def show(request):
 
     return render(request, "")
 
-def perfil(request):
+def update(request):
+
+    return render(request, "")
+
+def destroy(request):
 
     return render(request, "")
