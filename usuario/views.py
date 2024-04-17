@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
 
-def store(request):
+def cadastro(request):
+    if request.method == 'POST':
 
-    return render(request, "")
+        return render(request, "")
 
-def show(request):
+def perfil(request):
 
     return render(request, "")
 
