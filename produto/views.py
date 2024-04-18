@@ -1,9 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from .models import Produto
-from django.contrib import messages
-from django.contrib.messages import constants
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from django.core.serializers import serialize
 import json
 
 
@@ -28,9 +27,23 @@ def store(request):
     except Exception as erro:
         return HttpResponse(content=erro, status=400)
 
+@csrf_exempt
 def index(request):
-
-    return render(request, "")
+    try:
+        if request.method == "GET":
+            produtosAtivos = Produto.objects.filter(ativo=True).all()
+            produtosInativos = Produto.objects.filter(ativo=False).all()
+            produtosAtivos = json.loads(serialize('json', produtosAtivos))
+            produtosInativos = json.loads(serialize('json', produtosInativos))
+            produtosFields = {"ativos": [], "indisponiveis": []}
+            for produto in produtosAtivos:
+                produtosFields["ativos"].append(produto["fields"])
+            for produto in produtosInativos:
+                produtosFields["indisponiveis"].append(produto["fields"])
+            produtosFields = json.dumps(produtosFields)
+            return HttpResponse(content=produtosFields, status=200)
+    except Exception as erro:
+        return HttpResponse(content=erro, status=400)
 
 
 def show(request):
