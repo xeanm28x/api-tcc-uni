@@ -1,12 +1,8 @@
-from django.shortcuts import render
 from .models import Produto
-from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.core.serializers import serialize
 import json
 
-
-@csrf_exempt
 def store(request):
     try:
         if request.method == "POST":
@@ -27,7 +23,6 @@ def store(request):
     except Exception as erro:
         return HttpResponse(content=erro, status=400)
 
-@csrf_exempt
 def index(request):
     try:
         if request.method == "GET":
@@ -45,17 +40,49 @@ def index(request):
     except Exception as erro:
         return HttpResponse(content=erro, status=400)
 
-
 def show(request):
-
-    return render(request, "")
-
+    try:
+        if request.method == "GET":
+            id = request.GET.get("id")
+            produto = Produto.objects.filter(id=id).all()
+            if not produto:
+                raise KeyError("Produto não encontrado")
+            produto = json.loads(serialize("json", produto))
+            produto = json.dumps(produto[0]["fields"])
+            return HttpResponse(content=produto, status=200)
+    except Exception as erro:
+        return HttpResponse(content=erro, status=400)
 
 def update(request):
+    try:
+        produto = json.loads(request.body)
+        if not produto:
+            raise ValueError("Produto não informado")
+        if "id" not in produto:
+            raise ValueError("Erro ao processar requisição")
+        produtoBD = Produto.objects.filter(id=produto["id"]).first()
+        if not produtoBD:
+            raise ValueError("Produto inexistente")
+        if len(produto) == 1:
+            raise UserWarning("Sem novos valores para atualizar.")
+        if "descricao" in produto:
+            produtoBD.descricao = produto["descricao"]
+        if "valor_unitario" in produto:
+            produtoBD.valor_unitario = produto["valor_unitario"]
+        if "ativo" in produto:
+            produtoBD.ativo = produto["ativo"]
+        produtoBD.save()
+        produto = json.loads(serialize("json", [produtoBD]))
+        retorno = json.dumps({
+            "mensagem": "Produto atualizado com sucesso!",
+            "produto": json.dumps(produto[0]["fields"])
+            })
+        return HttpResponse(content=retorno, status=200)
+    except Exception as erro:
+        if erro.__class__ == UserWarning:
+            return HttpResponse(content=erro, status=204)
+        return HttpResponse(content=erro, status=400)
 
-    return render(request, "")
-
-@csrf_exempt
 def destroy(request):
     try:
         produto = json.loads(request.body)
@@ -65,7 +92,7 @@ def destroy(request):
             raise ValueError("Erro ao processar requisição")
         produtoBD = Produto.objects.filter(id=produto["id"]).first()
         if not produtoBD:
-            raise ValueError("Produto inexistente.")
+            raise ValueError("Produto inexistente")
         produtoBD.delete()
         return HttpResponse(content="Produto removido com sucesso!", status=200)
     except Exception as erro:
