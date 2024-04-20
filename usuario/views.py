@@ -1,18 +1,3 @@
-from django.shortcuts import render, redirect
-
-def cadastro(request):
-    if request.method == 'POST':
-
-        return render(request, "")
-
-def perfil(request):
-
-    return render(request, "")
-
-def update(request):
-
-    return render(request, "")
-
-def destroy(request):
-
-    return render(request, "")
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+import json

@@ -1,10 +1,10 @@
 from django.db import models
-from datetime import datetime, date
+from datetime import datetime
 
 class Administrador(models.Model):
     id = models.AutoField(primary_key=True)
-    # data_cadastro = models.DateTimeField(default=datetime.today)
-    # data_atualizacao = models.DateTimeField(default=datetime.today)
+    data_cadastro = models.DateTimeField(default=datetime.today)
+    data_atualizacao = models.DateTimeField(default=datetime.today)
     email = models.EmailField()
     senha = models.CharField(max_length=128)
 class Empresa(models.Model):
@@ -19,7 +19,7 @@ class Vendedor(models.Model):
     senha = models.CharField(max_length=128)
     cpf = models.CharField(max_length=11)
     nome = models.CharField(max_length=80)
-    # data_nascimento = models.DateField()
+    data_nascimento = models.DateField()
     sexo = models.CharField(max_length=2)
     telefone = models.CharField(max_length=11)
     logradouro = models.CharField(max_length=80)
@@ -30,3 +30,12 @@ class Vendedor(models.Model):
     estado = models.CharField(max_length=2)
     pais = models.CharField(max_length=30)
     ativo = models.BooleanField(default=True)
+    id_empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True)
+class Cliente(models.Model):
+    id = models.AutoField(primary_key=True)
+    data_cadastro = models.DateTimeField(default=datetime.today)
+    data_atualizacao = models.DateTimeField(default=datetime.today)
+    nome = models.CharField(max_length=80)
+    telefone = models.CharField(max_length=11)
+    email = models.EmailField()
+    id_empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, null=True)
