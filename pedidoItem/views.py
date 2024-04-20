@@ -64,3 +64,36 @@ def index(request):
             return HttpResponse(content=itens, status=200)
     except Exception as erro:
         return HttpResponse(content=erro, status=400)
+@csrf_exempt
+def show(request):
+    try:
+        if request.method == "GET":
+            id = request.GET.get("id")
+            item = PedidoItem.objects.filter(id=id).all()
+            if not item:
+                raise KeyError("Item não encontrado")
+            item = json.loads(serialize("json", item))
+            item = json.dumps(item[0]["fields"])
+            return HttpResponse(content=item, status=200)
+    except Exception as erro:
+        return HttpResponse(content=erro, status=400)
+@csrf_exempt
+def destroy(request):
+    try:
+        item = json.loads(request.body)
+        if not item:
+            raise ValueError("Por favor, informe o item")
+        if "id" not in item:
+            raise ValueError("Erro ao processar requisição")
+        itemBD = PedidoItem.objects.filter(id=item["id"]).first()
+        if not itemBD:
+            raise ValueError("Item inexistente")
+        if item["quantidade"]:
+            if item["quantidade"] < itemBD.quantidade:
+                itemBD.quantidade -= item["quantidade"]
+                itemBD.save()
+            if item["quantidade"] == itemBD.quantidade:
+                itemBD.delete()
+        return HttpResponse(status=200)
+    except Exception as erro:
+        return HttpResponse(content=erro, status=400)
